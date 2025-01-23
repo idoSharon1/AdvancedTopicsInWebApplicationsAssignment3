@@ -1,42 +1,29 @@
-import React, { useState } from 'react';
-import Cell from './Cell';
-
-const lines = [
-  [0, 1, 2],
-  [3, 4, 5],
-  [6, 7, 8],
-  [0, 3, 6],
-  [1, 4, 7],
-  [2, 5, 8],
-  [0, 4, 8],
-  [2, 4, 6],
-];
+import React, { useState } from "react";
+import Cell from "./Cell";
+import { calculateWinner } from "../utils/algorithem";
+import { gameCubeState } from "../utils/types";
 
 const Board: React.FC = () => {
-  const [board, setBoard] = useState<(string | null)[]>(Array(9).fill(null));
+  const [board, setBoard] = useState<gameCubeState[]>(Array(9).fill(null));
   const [isXNext, setIsXNext] = useState<boolean>(true);
-  const [winner, setWinner] = useState<string | null>(null);
-
-  const calculateWinner = (squares: (string | null)[]): string | null => {
-    for (let i = 0; i < lines.length; i++) {
-      const [a, b, c] = lines[i];
-      if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-        return squares[a]!;
-      }
-    }
-    return null;
-  };
+  const [winner, setWinner] = useState<gameCubeState | "draw">(null);
+  const [counter, setCounter] = useState<number>(0);
 
   const handleClick = (index: number): void => {
     if (board[index] || winner) return;
 
-    const newBoard = board.slice();
-    newBoard[index] = isXNext ? 'X' : 'O';
+    const newBoard: gameCubeState[] = board.slice();
+    newBoard[index] = counter % 2 == 0 ? "x" : "o";
+    setCounter(counter + 1);
     setBoard(newBoard);
     setIsXNext(!isXNext);
 
     const gameWinner = calculateWinner(newBoard);
-    setWinner(gameWinner);
+    if (gameWinner == null && counter == 8) {
+      setWinner("draw");
+    } else {
+      setWinner(calculateWinner(newBoard));
+    }
   };
 
   const renderCell = (index: number) => {
@@ -52,15 +39,26 @@ const Board: React.FC = () => {
 
   return (
     <div>
-      {winner ? <h2>Winner: {winner}</h2> : <h2>Next Player: {isXNext ? 'X' : 'O'}</h2>}
-      <div className="board">
-        {board.map((_, i) => renderCell(i))}
-      </div>
-      <button onClick={() => { setBoard(Array(9).fill(null)); setWinner(null); }}>
+      {winner ? (
+        winner == "draw" ? (
+          <h2>Draw</h2>
+        ) : (
+          <h2>Winner: {winner}</h2>
+        )
+      ) : (
+        <h2>Next Player: {isXNext ? "X" : "O"}</h2>
+      )}
+      <div className="board">{board.map((_, i) => renderCell(i))}</div>
+      <button
+        onClick={() => {
+          setBoard(Array(9).fill(null));
+          setWinner(null);
+        }}
+      >
         Restart
       </button>
     </div>
   );
-}
+};
 
 export default Board;

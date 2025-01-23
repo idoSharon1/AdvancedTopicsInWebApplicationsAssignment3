@@ -1,38 +1,22 @@
-type Cell = "x" | "o";
+import { gameCubeState } from "./types";
 
-interface ICheckWhoWin {
-  cellArr: Cell[3][3];
-}
+const winningLines = [
+  [0, 1, 2],
+  [3, 4, 5],
+  [6, 7, 8],
+  [0, 3, 6],
+  [1, 4, 7],
+  [2, 5, 8],
+  [0, 4, 8],
+  [2, 4, 6],
+];
 
-export function checkWhoWin({ cellArr }: ICheckWhoWin) {
-  //Checking nain diagonal
-  if (cellArr[0][0] == cellArr[1][1] && cellArr[1][1] == cellArr[2][2]) {
-    return true;
-  }
-  //Checking secondary diagonal
-  if (cellArr[2][0] == cellArr[1][1] && cellArr[1][1] == cellArr[2][0]) {
-    return true;
-  }
-
-  //Checking rows and colums
-  for (let index = 0; index < 3; index++) {
-    //Checking rows
-    if (
-      cellArr[index][0] == cellArr[index][1] &&
-      cellArr[index][1] == cellArr[index][2]
-    ) {
-      return true;
-    }
-
-    //Checking colums
-    if (
-      cellArr[0][index] == cellArr[1][index] &&
-      cellArr[1][index] == cellArr[2][index]
-    ) {
-      return true;
+export function calculateWinner(cellArr: gameCubeState[]) {
+  for (let i = 0; i < winningLines.length; i++) {
+    const [a, b, c] = winningLines[i];
+    if (cellArr[a] && cellArr[a] === cellArr[b] && cellArr[a] === cellArr[c]) {
+      return cellArr[a]!;
     }
   }
-
-  //if not found
-  return false;
+  return null;
 }
